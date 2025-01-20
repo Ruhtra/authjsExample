@@ -1,0 +1,157 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Alternative {
+  id         String   @id
+  questionId String
+  content    String
+  isCorrect  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  Question   Question @relation(fields: [questionId], references: [id])
+}
+
+model Bank {
+  id   String @id
+  name String @unique
+  Exam Exam[]
+}
+
+model Discipline {
+  id       String     @id
+  name     String     @unique
+  Question Question[]
+}
+
+model Exam {
+  id          String     @id
+  year        Int
+  position    String
+  level       String
+  instituteId String
+  bankId      String
+  isComplete  Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  Bank        Bank       @relation(fields: [bankId], references: [id])
+  Institute   Institute  @relation(fields: [instituteId], references: [id])
+  Question    Question[]
+}
+
+model Institute {
+  id   String @id
+  name String @unique
+  Exam Exam[]
+}
+
+model Question {
+  id           String        @id
+  examId       String
+  disciplineId String
+  statement    String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime
+  Alternative  Alternative[]
+  Discipline   Discipline    @relation(fields: [disciplineId], references: [id])
+  Exam         Exam          @relation(fields: [examId], references: [id])
+}
+
+// model User {
+//   id             String    @id
+//   birthDate      DateTime
+//   isSubscribed   Boolean
+//   name           String
+//   email          String    @unique
+//   profilePicture String?
+//   createdAt      DateTime
+//   updatetAt      DateTime?
+//   idClientStripe String?   @unique
+//   passwordHash   String
+//   role           role
+// }
+
+enum role {
+  admin
+  sup
+  teacher
+  student
+}
+
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  passwordHash  String          // Adicionando o campo passwordHash
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([provider, providerAccountId])
+}
+ 
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+ 
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+ 
+  @@id([identifier, token])
+}
+ 
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @unique
+  userId               String
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+ 
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+ 
+  @@id([userId, credentialID])
+}
