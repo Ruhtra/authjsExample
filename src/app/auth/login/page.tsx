@@ -2,6 +2,7 @@
 
 import { login } from "@/actions/login";
 import React, { useTransition, useState } from "react";
+import SocialLogin from "./_components/social";
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
@@ -56,6 +57,8 @@ export default function LoginPage() {
       </form>
       {message && <p style={{ color: "green" }}>{message}</p>}
       {error && <p style={{ color: "red" }}>{error}</p>}
+
+      <SocialLogin />
     </div>
   );
 }
