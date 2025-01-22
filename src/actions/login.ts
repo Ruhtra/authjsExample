@@ -5,6 +5,7 @@ import { DEFAULT_LOGIN_REDIRECT } from "../../routes";
 import { AuthError } from "next-auth";
 import { getUserByEmail } from "@/lib/user";
 import { generateVerificationToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/data/mail";
 
 //ADDED VALIDATION WITH SCHEMA HERE
 export async function login(values: any) {
@@ -21,6 +22,9 @@ export async function login(values: any) {
     const verificationToken = await generateVerificationToken(
       existingUser.email
     );
+
+    await sendVerificationEmail(verificationToken.email, verificationToken.token)
+
     return { success: "Confirmation email sent!" };
   }
 
