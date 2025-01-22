@@ -3,8 +3,8 @@
 import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "../../routes";
 import { AuthError } from "next-auth";
-import { getUserByEmail } from "@/data/user";
-import { generateVerificationToken } from "@/data/tokens";
+import { getUserByEmail } from "@/lib/user";
+import { generateVerificationToken } from "@/lib/tokens";
 
 //ADDED VALIDATION WITH SCHEMA HERE
 export async function login(values: any) {
@@ -33,10 +33,6 @@ export async function login(values: any) {
     });
   } catch (error) {
     if (error instanceof AuthError) {
-      console.log("balbsbfklsbfusisnfkjsnfsj");
-
-      console.log(error);
-
       switch (error.type) {
         case "CredentialsSignin":
           return { error: "Invalid credentials" };

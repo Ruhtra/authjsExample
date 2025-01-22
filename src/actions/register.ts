@@ -1,7 +1,7 @@
 "use server";
 import { sendVerificationEmail } from "@/data/mail";
-import { generateVerificationToken } from "@/data/tokens";
-import { getUserByEmail } from "@/data/user";
+import { generateVerificationToken } from "@/lib/tokens";
+import { getUserByEmail } from "@/lib/user";
 import { db } from "@/lib/db";
 import bcrypt from "bcryptjs";
 

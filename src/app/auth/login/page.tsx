@@ -4,6 +4,7 @@ import { login } from "@/actions/login";
 import React, { useTransition, useState } from "react";
 import SocialLogin from "./_components/social";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
@@ -42,6 +43,9 @@ export default function LoginPage() {
           <label htmlFor="password">Password:</label>
           <input type="password" id="password" name="password" required />
         </div>
+        <button type="button">
+          <Link href={"/auth/reset"}>Fogot password?</Link>
+        </button>
         <button type="submit" disabled={isPending}>
           {isPending ? "Logging in..." : "Login"}
         </button>
@@ -49,7 +53,6 @@ export default function LoginPage() {
       {message && <p style={{ color: "green" }}>{message}</p>}
       {error ||
         (urlError && <p style={{ color: "red" }}>{error || urlError}</p>)}
-
       <SocialLogin />
     </div>
   );

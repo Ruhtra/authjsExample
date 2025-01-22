@@ -5,7 +5,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 
 import authConfig from "./auth.config";
 import { db } from "./lib/db";
-import { getUserById } from "./data/user";
+import { getUserById } from "./lib/user";
 import "next-auth/jwt";
 import { UserRole } from "@prisma/client";
 

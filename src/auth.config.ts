@@ -4,7 +4,7 @@ import bcrypt from "bcryptjs";
 import Google from "next-auth/providers/google";
 
 import { LoginSchema } from "@/schemas/LoginSchema";
-import { getUserByEmail } from "./data/user";
+import { getUserByEmail } from "./lib/user";
 
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
