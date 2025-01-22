@@ -7,8 +7,8 @@ import { useSearchParams } from "next/navigation";
 
 export default function LoginPage() {
   const [isPending, startTransition] = useTransition();
-  const [message, setMessage] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null | undefined>(null);
+  const [error, setError] = useState<string | null | undefined>(null);
 
   //error authjs
   const searchParams = useSearchParams();
@@ -23,28 +23,10 @@ export default function LoginPage() {
     const values = Object.fromEntries(formData.entries());
 
     startTransition(async () => {
-      try {
-        console.log("aqui");
-        const response = await login(values);
-        console.log(response?.error);
-
-        if (!!response?.error) {
-          setError(response.error);
-          setMessage(null);
-          // add WHEN 2FA
-        } else {
-          setError(null);
-          setMessage("Login successful!");
-        }
-
-        // setError(null);
-        // setMessage('Login successful!');
-      } catch (err) {
-        console.log(err);
-
-        setError("Login failed. Please try again.");
-        setMessage(null);
-      }
+      login(values).then((data) => {
+        setError(data?.error);
+        setMessage(data?.success);
+      });
     });
   }
 

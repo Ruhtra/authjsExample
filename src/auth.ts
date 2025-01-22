@@ -13,7 +13,7 @@ import { UserRole } from "@prisma/client";
 declare module "next-auth" {
   interface Session {
     user: {
-      //   id: string;
+      id: string;
       role: UserRole;
     } & DefaultSession["user"];
   }
@@ -45,18 +45,19 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
   },
   callbacks: {
-    // async signIn({ user }) {
-    //   if (user.id) {
-    //     const suer = await getUserById(user.id);
+    async signIn({ user, account }) {
+      if (account?.provider !== "credentials") return true;
+      if (user.id) {
+        const existingUser = await getUserById(user.id);
 
-    //     if (!suer || !suer.emailVerified) {
-    //       return false;
-    //     }
-    //   }
+        //Prevent sign in without email verification
+        if (!existingUser?.emailVerified) return false;
+      } else {
+        throw new Error("Usuário não contém id");
+      }
 
-    //   return true;
-    // },
-
+      return true;
+    },
     async session({ token, session }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
