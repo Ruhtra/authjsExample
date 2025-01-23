@@ -94,7 +94,7 @@ model User {
   accounts      Account[]
   role          UserRole  @default(student)
 
-  isTwoFactorEnabled Boolean @default(false)
+  isTwoFactorEnabled    Boolean                @default(false)
   twoFactorConfirmation TwoFactorConfirmation?
   // sessions      Session[]
   // Optional for WebAuthn support
@@ -189,12 +189,13 @@ model TwoFactorToken {
   @@unique([email, token])
 }
 
-
 model TwoFactorConfirmation {
   id String @id @default(cuid())
 
+  // expires DateTime // for vlidatetime
+
   userId String
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId])
 }

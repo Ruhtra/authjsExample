@@ -8,6 +8,7 @@ import { db } from "./lib/db";
 import { getUserById } from "./lib/user";
 import "next-auth/jwt";
 import { UserRole } from "@prisma/client";
+import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation";
 
 // Types.d.ts declare
 declare module "next-auth" {
@@ -47,13 +48,29 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
   callbacks: {
     async signIn({ user, account }) {
       if (account?.type !== "credentials") return true;
-      if (user.id) {
-        const existingUser = await getUserById(user.id);
 
-        //Prevent sign in without email verification
-        if (!existingUser?.emailVerified) return false;
-      } else {
-        throw new Error("Usuário não contém id");
+      //I Write this throw for supress error in user
+      //if this throw for execute, validate why user can be null
+      if (!user.id) throw new Error("Usuário não contém id");
+
+      const existingUser = await getUserById(user.id);
+
+      //Prevent sign in without email verification
+      if (!existingUser?.emailVerified) return false;
+
+      if (existingUser.isTwoFactorEnabled) {
+        const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(
+          existingUser.id
+        );
+
+        if (!twoFactorConfirmation) return false;
+
+        //Delete two factor confirmation for next sign in
+        await db.twoFactorConfirmation.delete({
+          where: {
+            id: twoFactorConfirmation.id,
+          },
+        });
       }
 
       return true;
