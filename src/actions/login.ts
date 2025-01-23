@@ -23,7 +23,10 @@ export async function login(values: any) {
       existingUser.email
     );
 
-    await sendVerificationEmail(verificationToken.email, verificationToken.token)
+    await sendVerificationEmail(
+      verificationToken.email,
+      verificationToken.token
+    );
 
     return { success: "Confirmation email sent!" };
   }
@@ -32,9 +35,10 @@ export async function login(values: any) {
     await signIn("credentials", {
       email,
       password,
-      redirect: false,
-      // redirectTo: DEFAULT_LOGIN_REDIRECT
+      redirect: true,
+      redirectTo: DEFAULT_LOGIN_REDIRECT,
     });
+    return { success: "Login Successfull, redirecting..." };
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {
