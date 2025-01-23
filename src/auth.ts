@@ -15,6 +15,7 @@ declare module "next-auth" {
   interface Session {
     user: {
       id: string;
+      isTwoFactorEnabled: boolean;
       role: UserRole;
     } & DefaultSession["user"];
   }
@@ -25,6 +26,7 @@ declare module "next-auth/jwt" {
   interface JWT {
     /** OpenID ID Token */
     role?: UserRole;
+    isTwoFactorEnabled: boolean;
   }
 }
 
@@ -82,6 +84,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (token.role && session.user) {
         session.user.role = token.role;
       }
+      if (session.user) {
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled;
+      }
 
       return session;
     },
@@ -92,6 +97,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (!user) return token;
 
       token.role = user.role;
+      token.isTwoFactorEnabled = user.isTwoFactorEnabled;
 
       return token;
     },
