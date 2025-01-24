@@ -9,14 +9,19 @@ import { getUserById } from "./lib/user";
 import "next-auth/jwt";
 import { UserRole } from "@prisma/client";
 import { getTwoFactorConfirmationByUserId } from "./data/two-factor-confirmation";
+import getAccountByUserId from "./data/account";
+import { use } from "react";
 
 // Types.d.ts declare
 declare module "next-auth" {
   interface Session {
     user: {
       id: string;
-      isTwoFactorEnabled: boolean;
+      email: string;
       role: UserRole;
+      isTwoFactorEnabled: boolean;
+
+      isOAuth: boolean;
     } & DefaultSession["user"];
   }
 }
@@ -26,11 +31,14 @@ declare module "next-auth/jwt" {
   interface JWT {
     /** OpenID ID Token */
     role?: UserRole;
+    email: string;
     isTwoFactorEnabled: boolean;
+
+    isOAuth: boolean;
   }
 }
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
+export const { auth, handlers, signIn, signOut, unstable_update } = NextAuth({
   pages: {
     signIn: "/auth/login",
     error: "/auth/error",
@@ -87,6 +95,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.isTwoFactorEnabled = token.isTwoFactorEnabled;
       }
+      if (session.user) {
+        session.user.name = token.name;
+        session.user.image = token.picture;
+        session.user.email = token.email;
+        session.user.isOAuth = token.isOAuth;
+      }
 
       return session;
     },
@@ -96,6 +110,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       const user = await getUserById(token.sub);
       if (!user) return token;
 
+      const existingAccount = await getAccountByUserId(user.id);
+
+      token.isOAuth = !!existingAccount;
+      token.name = user.name;
+      token.picture = user.image;
+      token.email = user.email;
       token.role = user.role;
       token.isTwoFactorEnabled = user.isTwoFactorEnabled;
 
